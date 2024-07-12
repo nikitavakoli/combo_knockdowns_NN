@@ -61,7 +61,7 @@ import gc
 import numpy as np
 import sys
 
-saveFld = 'results/070924_run' #put folder that it will save in
+saveFld = 'results/071124_run_9' #put folder that it will save in
 # n_nn = sys.argv[2]
 n_nn = 1
 
@@ -79,7 +79,7 @@ for i in ['KRAS', 'WT']:
 			label_array = np.full((s.shape[0],), z)
 			labels_list.append(label_array)
 			sims_list.append(s)
-	z += 1
+			z += 1
 
 
 sims = np.vstack(sims_list)
@@ -89,6 +89,8 @@ labels = np.concatenate(labels_list)
 print(f"Total shape of sims: {sims.shape}")
 print(f"Total shape of labels: {labels.shape}")
 
+print(sims[0].shape)
+
 # Check mismatch
 if sims.shape[0] != labels.shape[0]:
 	exit('wrong number of labels')
@@ -96,20 +98,28 @@ if sims.shape[0] != labels.shape[0]:
 
 training = 'triplet'
 input_shape = sims[0].shape
-batchSize = sims.shape[0]
+#batchSize = sims.shape[0]
+batchSize = 15
 data = DataGenerator(sims, batchSize, training, distortion=0.01, labels=labels)
 
-params = {'input_shape': input_shape,
+params = {#'input_shape': (74,1),
+		  'input_shape': input_shape,
 		  'structure': 'ffn', 
-		  'fullyConnected': [64,2],
+		  #'structure': 'c1d',
+		  'fullyConnected': [64, 2],
 		  'hiddenActivation': 'selu', # 'linear'
 		  'outputActivation': 'linear',
+		  #'dropout': 0.5,
 		  'dropout': 0.0,
-		  'learning_rate': 1e-6,
-		  'epochs': 10000,
-		  'patience': 10000,
-		  'batchNorm': False,
+		  'learning_rate': 0.5e-4,
+		  'epochs': 1000,
+		  'patience': 1000,
+		  #'batchNorm': True,
+		  'batchNorm': True,
 		  'training': training}
+		  # add in parameters below for c2d
+		  #'cnnFilters':[64,2],
+		  #'kernelSize': 3}
 
 print()
 print('training')
